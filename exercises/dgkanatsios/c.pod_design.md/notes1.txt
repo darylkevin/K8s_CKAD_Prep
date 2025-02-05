@@ -1,0 +1,30 @@
+# Getting pods with labels
+k get pods --show-labels
+
+# Getting pods with specific label
+k get pods -l <label-key>
+k get pods -l <label-key>=<label-value>
+k get pods -l <label-key> in (<label-value1>, <label-value2>)
+
+# Adding labels
+k label pods <pod-name> <label-key>=<label-value> <new-label-key>=<new-label-value>
+
+# Overwrite existing label key
+k label pods <pod-name> <label-key>=<new-label-value>
+
+# Remove labels
+k label pods --all <label-key>- # Note the dash at the end
+
+# Getting pods with annotations
+k annotate pods --all --list
+
+# Annotating a pod or all pods
+k annotate pods <pod-name (or --all)> <annotation-key>=<annotation-value>
+
+# Overwrite existing annotation key
+k annotate pods <pod-name> <annotation-key>=<new-annotation-value>
+
+# Removing annotations
+k annotate pods <pod-name> <annotation-key>- # Note the dash at the end
+
+// More on k label --help and k annotate --help//

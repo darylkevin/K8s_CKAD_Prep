@@ -1,0 +1,19 @@
+# Service Accounts
+
+k get sa -A # get all service accounts in all namespaces
+k create sa myuser
+
+...
+spec:
+  serviceAccountName: myuser
+  containers:
+  - image: ...
+    name: ...
+
+## Generating token for service account
+
+k create token <sa-name> -ojson
+
+e.g.
+
+k create token myuser -ojson

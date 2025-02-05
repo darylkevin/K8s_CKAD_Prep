@@ -1,0 +1,43 @@
+# Liveness, Readiness and Startup Probes
+
+## Liveness Probes (exec commands)
+...
+spec:
+    containers:
+    - image: ...
+      name: ...
+      livenessProbe:
+        exec:
+            command:
+            - cat
+            - /tmp/healthy
+        initialDelaySeconds: 5 # wait 5 seconds before first check
+        periodSeconds: 5 # check every 5 seconds
+
+## Readiness Probes (http requests)
+
+...
+spec:
+    containers:
+    - image: ...
+      name: ...
+      readinessProbe:
+        httpGet:
+            path: /
+            port: 80
+        initialDelaySeconds: 5
+        periodSeconds: 5
+
+## Startup Probes (tcp socket)
+
+...
+spec:
+    containers:
+    - image: ...
+      name: ...
+      startupProbe:
+        tcpSocket:
+            port: 80
+        failureThreshold: 18 # 18 retries before marking as failed
+        initialDelaySeconds: 10
+        periodSeconds: 5

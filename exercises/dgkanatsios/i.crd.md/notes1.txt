@@ -1,0 +1,36 @@
+# Custom Resource Definition (CRD)
+
+> Simplest way is just to copy k8s sample yaml in the docs. You will be given something like this from the exam:
+
+Name : operators.stable.example.com
+Group : stable.example.com
+Schema: <email: string><name: string><age: integer>
+Scope: Namespaced
+Names: <plural: operators><singular: operator><shortNames: op>
+Kind: Operator
+
+> To specify shortnames, you can do:
+
+...
+names:
+    plural: operators
+    singular: operator
+    shortNames:
+    - op
+
+> Once done, apply the CRD:
+k apply -f crd.yaml
+
+> Later when you want to create a resource with this definition, you can do:
+
+apiVersion: <group>/<version>
+kind: <kind>
+metadata:
+    name: <name>
+spec:
+    <field>: <value>
+    <field>: <value>
+    <field>: <value>
+
+The field-value is the one you specify in spec.versions.schema.openAPIV3Schema.properties
+

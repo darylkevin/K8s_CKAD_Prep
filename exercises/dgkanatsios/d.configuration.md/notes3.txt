@@ -1,0 +1,60 @@
+# Resource requests and limits, Limit ranges and Resource quotas
+
+## Resource requests and limits
+
+...
+spec:
+    containers:
+    - image: ...
+      name: ...
+      resources:
+          requests:
+              memory: "64Mi"
+              cpu: "250m"
+          limits:
+              memory: "128Mi"
+              cpu: "500m"
+
+## Limit ranges
+
+k create ns namespace-with-limitrange
+k config set-context --current --namespace=namespace-with-limitrange
+
+apiVersion: v1
+kind: LimitRange
+metadata:
+  name: ns-memory-limit
+  namespace: limitrange
+spec:
+  limits:
+  - max: # max and min define the limit range
+      memory: "500Mi"
+    min:
+      memory: "100Mi"
+    type: Pod
+
+k apply -f limitrange.yaml
+
+The limitrange will then apply to the current namespace.
+If a pod is created outside the bound of the limit range OR not specified, it will be rejected.
+
+## Resource quotas
+
+Attaching both requests and limits in yaml file of ResourceQuota kind:
+
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: my-rq
+  namespace: one
+spec:
+  hard:
+    requests.cpu: "1"
+    requests.memory: 1Gi
+    limits.cpu: "2"
+    limits.memory: 2Gi
+
+Or using imperative command:
+
+kubectl create quota my-rq --namespace=one --hard=requests.cpu=1,requests.memory=1Gi,limits.cpu=2,limits.memory=2Gi
+

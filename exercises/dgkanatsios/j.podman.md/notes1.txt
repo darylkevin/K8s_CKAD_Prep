@@ -1,0 +1,14 @@
+# Docker and Podman
+
+### Build, run, tag, and push
+
+podman build -t <tag-name> .
+podman run -d -p 8080:80 -name <container-name> <image-name>
+podman push <image-name> <registry>/<image-name>
+
+### Export and save
+
+> Exporting is to save the container as a tarball, while saving is to save the image as a tarball.
+
+podman export <container-id> > <container-name>.tar
+podman save <image-name> > <image-name>.tar

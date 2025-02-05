@@ -1,0 +1,75 @@
+# Helm
+
+### Do a lot of helm <command> --help!
+
+### Create a basic helm chart
+
+helm create mychart --> this will create a directory called mychart with the basic structure of a helm chart
+
+### Running (installing) a helm chart.
+Running = installing
+
+helm install <name-of-release> <path-to-chart>
+
+e.g. helm install myrelease ./mychart --> ./mychart is the path to the chart that we just created before using helm create
+
+### Uninstalling a helm chart
+
+helm uninstall <name-of-release>
+
+### Upgraging a helm chart
+
+helm upgrade <name-of-release> <path-to-chart>
+
+e.g. helm upgrade myrelease ./mychart
+
+### Find active helm deployments on all namespaces
+helm list -A
+
+### Find pending helm deployments on all namespaces
+
+helm list --pending -A
+
+### Helm repo
+
+helm repo [command] --> do a lot of helm repo --help!
+helm repo search <chart-name>
+
+e.g.
+
+helm repo add bitnami https://charts.bitnami.com/bitnami
+helm repo list
+helm repo remove bitnami
+helm repo update
+helm repo search nginx --> will list all charts with nginx in their name and its details
+
+### Download a helm chart from a repo (just downloading, not installing)
+
+helm pull <chart-url> # you will get tar file
+helm pull --untar <chart-url> # this will untar the chart after downloading it
+
+### Showing values of values.yaml file
+
+helm show values <path-to-chart>
+helm show values <chart-name> # if the chart is already installed
+
+e.g. 
+
+helm show values ./mychart
+helm show values bitnami/node
+
+### Overwriting values of values.yaml file
+
+helm show values <path-to-chart> | grep <values-to-overwrite>
+helm install <name-of-release> <path-to-chart> --set <values-to-overwrite>
+
+e.g.
+
+helm show values bitnami/node | grep -i replicas
+
+> You will get something like:
+## @param replicaCount Specify the number of replicas for the application
+replicaCount: 1
+
+> Now we know the parameter name is replicaCount, so we can overwrite it like this:
+helm install myrelease bitnami/node --set replicaCount=5

@@ -1,0 +1,69 @@
+# Cron structure
+
+# ┌───────────── minute (0 - 59)
+# │ ┌───────────── hour (0 - 23)
+# │ │ ┌───────────── day of the month (1 - 31)
+# │ │ │ ┌───────────── month (1 - 12)
+# │ │ │ │ ┌───────────── day of the week (0 - 6) (Sunday to Saturday)
+# │ │ │ │ │                                   OR sun, mon, tue, wed, thu, fri, sat
+# │ │ │ │ │ 
+# │ │ │ │ │
+# * * * * *
+
+If uses / (e.g. */1 * * * *), it means every '/' value. In this case its every minute.
+
+Range values can be used also. For example, 2-14/1 * * * * means every minute from 2 to 14.
+
+# Creating cronjob
+k create cj <cronjob-name> --image=<image-name> --schedule="*/1 * * * *" -- <command>
+
+# Checking the logs of the cronjob
+You cannot view the logs from the cj resource directly, instead, you need to check the pods that are created by the cj.
+
+k get pod
+k logs <pod-name>
+
+Dont forget to:
+1. For every task, begin with -- /bin/sh -c <command>, or -- /bin/sh -c '<commands, seperated with ; >'. DO NOT FORGET THE /bin/sh -c, otherwise it will go to crash loop back off (OCI Error)
+2. -- /bin/sh -c is equvalent to:
+...
+spec:
+    containers:
+    - image: ...
+      name: ...
+      command: ["/bin/sh", "-c"] # Run a shell and pass the command
+      args: ["echo 'Hello, World!'; echo 'Hello, Kubernetes!'"] # Note that its args, not arguments!
+
+OR 
+
+...
+spec:
+    containers:
+    - image: ...
+      name: ...
+      command:
+        args:
+        - /bin/sh
+        - -c
+        - echo 'Hello, World!'; echo 'Hello, Kubernetes!'
+
+Terminating CJ if takes too long to start execution:
+...
+spec:
+    startingDeadlineSeconds: 30 # meaning the job will be terminated if it takes more than 30 seconds to start
+    ...
+
+
+Terminating CJ if takes too long after starting execution:
+...
+spec:
+    jobTemplate:
+        spec:
+            activeDeadlineSeconds: 30 # meaning the job will be terminated if it takes more than 30 seconds to complete
+    ...
+
+Creating job from cj:
+
+k create job <job-name> --from=cj/<cj-name>
+
+Further information please look k explain cj.spec

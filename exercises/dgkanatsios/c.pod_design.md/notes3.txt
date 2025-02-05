@@ -1,0 +1,36 @@
+# Creating a deployment
+k create deployment mydep --image=nginx --replicas=2 --port=80
+
+# Exposing the deployment
+k expose deployment mydep --port=80 --target-port=80 --type=ClusterIP --selector=app=mydep # This selector is the deployment selector
+
+# Scaling deployment
+k scale deployment mydep --replicas=3
+
+# Getting yaml
+k get deployment mydep -o yaml
+
+# Rollouts
+k rollout status deployment mydep
+k rollout history deployment mydep
+k rollout pause deployment mydep # Pauses the rollout, any change in deployment definition will not be applied
+k rollout resume deployment mydep # Resumes the rollout
+k rollout undo deployment mydep --to-revision=X # Rolls back to a specific revision
+
+// More on k rollout <commands> --help
+
+# Autoscaling
+k autoscale deployment mydep --min=1 --max=5 --cpu-percent=80
+
+# Canary deployment
+// Implement canary deployment by running two instances of nginx marked as version=v1 and version=v2 so that the load is balanced at 75%-25% ratio
+show
+k create deployment mydep --image=nginx --replicas=2 --port=80 --labels=version=v1 --labels=app=app
+k scale deployment mydep --replicas=3
+
+k create deployment mydep2 --image=nginx --replicas=1 --port=80 --labels=version=v2 --labels=app=app
+k scale deployment mydep2 --replicas=1
+
+k expose deployment mydep --port=80 --target-port=80 --type=ClusterIP --selector=app=app
+
+// The service will balance the load between the two deployments with a 75%-25% ratio

@@ -1,0 +1,26 @@
+# Assigning Pods to Nodes by Labels
+...
+spec:
+    nodeSelector:
+        <key>: <value>
+
+# Assigning Pods to Nodes by Node Name
+...
+spec:
+    nodeName: <node-name>
+
+# Taint a node
+k taint nodes <node-name> <key>=<value>:<effect> # Refer to docs for effect values. Typical values are NoSchedule, PreferNoSchedule, NoExecute
+
+# Remove taint from a node
+k taint nodes <node-name> <key>-
+
+# Tolerate a taint in a pod
+...
+spec: 
+    tolerations:
+    - key: <key> (for labels, use key="key-value". for taint based evictions, use key="node.kuberntetes.io/<key> and use 'Exists' for operator)")
+      operator: <operator> # Refer to docs for operator values. Typical values are Equal, Exists // Note the capital E
+      value: <value>
+      effect: <effect> # Refer to docs for effect values. Typical values are NoSchedule, PreferNoSchedule, NoExecute
+      tolerationSeconds: <seconds> # Optional

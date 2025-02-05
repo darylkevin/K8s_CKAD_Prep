@@ -1,0 +1,48 @@
+# Secrets
+
+## Creating secrets
+
+k create secret <secret-type> <secret-name> --from-literal=<key1>=<value1> --from-literal=<key2>=<value2>
+k create secret generic mysecret --from-literal=key1=value1
+k create secret generic mysecret --from-file=<file-path> (OR --from-file=<key>=<file-path>)
+
+Secret-type can be generic, tls, docker-registry.
+
+## Viewing secrets
+k get secret <secret-name> -ojson | jq
+
+## Mounting secrets to a pod
+
+1. Using volumes:
+...
+spec:
+    containers:
+    - image: ...
+      name: ...
+      volumeMounts:
+        - name: <vol-name>
+          mountPath: <path-to-mount-in-container>
+          readOnly: true
+    volumes:
+    - name: <vol-name>
+      secret:
+        secretName: <secret-name>
+
+2. Using ENV:
+...
+spec:
+    containers:
+    - image: ...
+      name: ...
+      env:
+        - name: <key>
+          valueFrom:
+            secretKeyRef:
+              name: <secret-name>
+              key: <key>
+
+## Special secret type
+
+ssh-keygen # to generate a rsa key pair
+k create secret generic my-secret --type="kubernetes.io/ssh-auth" --from-file=ssh-privatekey=id_rsa
+

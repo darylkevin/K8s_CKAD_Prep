@@ -1,0 +1,46 @@
+# Config Maps
+
+k create cm my-config --from-literal=key1=value1
+k create cm my-config --from-file=<config.txt>
+k create cm my-config --from-env-file=<config.env>
+
+Can also use keys from files:
+k create cm my-config --from-file=special=config.txt --from-file=extra=config.env
+
+# Reference it to a pod
+
+1. Some keys under cm (most verbose)
+...
+spec:
+    containers:
+    - env:
+        - name: <key>
+          valueFrom:
+            configMapKeyRef:
+              name: <cm-name>
+              key: <key>
+
+2. All keys under cm (most concise)
+...
+spec:
+    containers:
+    - envFrom:
+        - configMapRef:
+            name: <cm-name>
+
+3. Reference into volumeMounts
+...
+spec:
+    containers:
+    ...
+    - image: ...
+      volumeMounts:
+        - name: <vol-name>
+          mountPath: <path>
+
+    volumes:
+    - name: <vol-name>
+      configMap:
+        name: <cm-name>
+        items:
+        - key: <key>

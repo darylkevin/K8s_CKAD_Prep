@@ -1,0 +1,22 @@
+# Security Context
+
+### Create a pod with user id
+...
+spec:
+    securityContext:
+        runAsUser: 101
+    containers:
+    - image: ...
+      name: ...
+
+### Create a pod with capabilities
+...
+spec:
+    containers:
+    - image: ...
+      name: ...
+      securityContext:
+          capabilities:
+              add: ["NET_ADMIN", "SYS_TIME"]
+
+              

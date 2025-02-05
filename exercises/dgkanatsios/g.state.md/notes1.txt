@@ -1,0 +1,47 @@
+# State Persistence
+
+- For emptyDir volumes without any definition, you can define it as following:
+
+...
+spec:
+    volumes:
+    - name: <vol-name>
+      emptyDir: {} # use curly braces (i.e. {}) to define an emptyDir volume
+
+- To connect to second container in a pod, use the following command:
+k exec -it <pod-name> -c <second-container-name> -- <command>
+
+e.g.
+
+k exec -it busybox -c busybox2 -- /bin/sh
+
+- To check mounting on a pod, use the following command:
+
+mount | grep <subpath of the volume>
+
+e.g.
+
+/ # mount | grep foo
+/dev/vda1 on /etc/foo type ext4 (rw,relatime)
+
+- It is possible to have multiple accessModes in a PVC.
+
+e.g.
+
+...
+spec:
+    accessModes:
+    - ReadWriteOnce
+    - ReadOnlyMany
+    - ReadWriteMany
+    ...
+
+- If there are multiple pods connecting to the same PVC, the PVC will be mounted to the pods, provided they are hosted in the same node.
+
+- Copying files from a pod to local machine:
+
+k copy <pod-name>:<path-to-file> <local-path>
+
+e.g.
+
+k copy busybox:/etc/passwd ./passwd

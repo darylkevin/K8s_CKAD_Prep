@@ -1,0 +1,40 @@
+# Running short one-liner command
+
+k run <pod-name> --image=<image-name> --restart=Never -- <command>
+k run <pod-name> --image=<image-name> --restart=Never --dry-run=client -o yaml -- <command> > pod.yaml # Note here the dry run -o yaml comes BEFORE the -- <command> part
+
+# Running short one-liner command with environment variables
+k run <pod-name> --image=<image-name> --restart=Never --env=<key>=<value> -- <command>
+
+# Running commands in resource (multi-line)
+
+...
+spec:
+    containers:
+    - image: ...
+      name: ...
+      command: ["/bin/sh", "-c"] # Run a shell and pass the command
+      args: ["echo 'Hello, World!'; echo 'Hello, Kubernetes!'"] # Note that its args, not arguments!
+
+# Running commands and auto-delete the pod after completion
+k run <pod-name> --image=<image-name> -i --rm -- <command>
+
+# Creating resource quota
+k create quota <quota-name> --hard=<resource-name>=<value> --namespace=<namespace>
+
+e.g.
+
+k create quota myrq --hard=cpu=1,memory=1G,pods=2 --namespace=myns --dry-run=client -o yaml > rq.yaml # Note its not rq, but quota!
+
+# Creating pod with exposed port
+k create nginx --image=nginx --port=80
+
+# Changing pods' image
+k set image pod <pod-name> <container-name>=<new-image>
+
+e.g.
+
+k set image pod nginx nginx=nginx:1.24.0
+
+# Get logs of previous pod that crashes
+k logs <pod-name> --previous

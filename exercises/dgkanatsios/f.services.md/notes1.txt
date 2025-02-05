@@ -1,0 +1,26 @@
+# Services and Networking
+
+### Create a pod abnd expose its port using kubectl run
+kubectl run nginx --image=nginx --port=80 --expose # the --expose flag will create a service for the pod
+
+### Get ClusterIP of a pod without service
+k get po -owide
+
+### Get k8s IPs
+k get nodes -owide # Check the Internal-IP column
+
+### Imperative commands to create a service
+k expose <resource> <resource-name> --port=<service-port> --target-port=<container-port> --type=<type>
+
+e.g.
+
+k expose deployment nginx --port=80 --target-port=6767 --type=NodePort # This means the service will expose port 6767 and map it to port 80 of the pod
+
+### Connecting to a service/pod using wget
+k run busybox --image busybox -- /bin/sh -c "wget -O- <service-name/pod-ip>:<port>"
+
+OR (to automatically delete the pods upon testing)
+
+k run busybox --image busybox --rm -it -- /bin/sh -c "wget -O- <service-name/pod-ip>:<port>"
+
+

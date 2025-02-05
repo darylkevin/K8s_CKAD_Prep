@@ -1,0 +1,493 @@
+Q1. 
+# k get ns > /opt/course/1/namespaces
+
+Q2.
+# k run --image=httpd:2.4.41-alpine pod1 --namespace=default --dry-run=client -o yaml > pod1.yaml
+# --namespace=default might not be necessary as it's the default namespace for kubectl to operate.
+
+Then edit pod1.yaml and fine this field:
+
+...
+containers:
+    - name: pod1-container # name it pod1-container
+
+Then run this command:
+k apply -f pod1.yaml
+
+Then run this command:
+kubectl get po pod1 > /opt/course/2/pod1-status-command.sh
+
+!! Remember to use *kubectl* instead of alias k as the question asks for it.
+!! Remember to get po `pod1` as the question asks for the status of that *exact* pod.
+
+Q3.
+# k create job neb-new-job --image=busybox:1.31.0 --namespace=neptune --dry-run=client -o yaml > /opt/course/3/job.yaml
+
+Then edit job.yaml and final result as follow:
+apiVersion: batch/v1
+kind: Job
+metadata:
+  creationTimestamp: null
+  name: neb-new-job
+  namespace: neptune
+spec:
+  completions: 3
+  parallelism: 2
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        id: awesome-job
+    spec:
+      containers:
+      - command:
+        - /bin/sh
+        - -c
+        - sleep 2 && echo done
+        image: busybox:1.31.0
+        name: neb-new-job-container
+        resources: {}
+      restartPolicy: Never
+status: {}
+
+!! Remember to put the yaml file in /opt/course/3/job.yaml
+
+Q4.
+1. # k config set-context --current --namespace mercury
+# helm uninstall internal-issue-report-apiv1
+
+2. # helm repo update
+# helm upgrade internal-issue-report-apiv2 bitnami/nginx
+
+
+3. # helm install internal-issue-report-apache bitnami/apache --set replicaCount=2
+
+4. helm list --pending -a --> find the pending-install release
+# helm uninstall <release-name>
+
+Q5.
+# k config set-context --current --namespace=neptune-sa-v2
+# k get sa
+# k describe sa neptune-sa-v2 --> find the token secret name
+# k get secret <secret-name> -ojson | jq --> copy the token
+# vi token.txt --> paste the token
+# base64 -d token.txt > /opt/course/5/token
+
+Q6.
+# k run pod6 --image=busybox:1.31.0 --namespace=default --dry-run=client -o yaml -- /bin/sh -c "touch /tmp/ready && sleep 1d" > pod6.yaml
+
+Then edit pod6.yaml and final result as follow:
+
+apiVersion: v1
+kind: Pod
+metadata:
+  creationTimestamp: null
+  labels:
+    run: pod6
+  name: pod6
+spec:
+  containers:
+  - args:
+    - /bin/sh
+    - -c
+    - touch /tmp/ready && sleep 1d
+    image: busybox:1.31.0
+    name: pod6
+    readinessProbe:
+      exec:
+        command:
+        - cat
+        - /tmp/ready
+      initialDelaySeconds: 5
+      periodSeconds: 10
+    resources: {}
+  dnsPolicy: ClusterFirst
+  restartPolicy: Always
+status: {}
+
+Q7.
+# k get all -n saturn -o yaml | grep -i my-happy-shop -A 3 -B 3 --> get which pod is the correct one (serving e-commerce)
+# k get po <pod-name> -n saturn -o yaml > my-happy-shop.yaml
+# vi my-happy-shop.yaml --> change the namespace to neptune an delete all the unnecessary fields
+# k apply -f my-happy-shop.yaml --> no need to specify -n neptune as it is already defined in the yaml file
+
+Q8.
+# k get pods -n neptune
+# k get pods -n neptune | grep -i api-new-c32 --> find the problematic pod
+# k describe pod <pod-name> -n neptune --> find the error
+# k rollout undo deployment/api-new-c32
+OR
+# k rollout undo deployment/api-new-c32 --to-revision=<revision-number>
+
+Q9.
+# cat /opt/course/9/holy-api-pod.yaml --> copy the necessary fields and make the deployment yaml from it.
+# adding allowPrivilegeEscalation and privileged to false:
+
+...
+apiVersion: apps/v1 # don't forget to change to apps/v1 from v1
+kind: Deployment
+metadata:
+    # follow the pod metadata, just remove the creationTimestamp
+spec:
+    replicas: 3
+    selector:
+        matchLabels:
+            id: holy-api # this is to select the pod labels
+    template:
+        metadata:
+            labels:
+                id: holy-api # this is the label of the pod
+        spec:
+            containers:
+            - name: holy-api
+              securityContext:
+                allowPrivilegeEscalation: false
+                privileged: false
+              ...
+
+### TIPS
+    To select and indent multiple lines in vim, you can do the following:
+
+    :help --> find visual mode command
+    Enter the visual mode, use j or k to select the lines
+    Then use > to indent or < to unindent. Can also use n + > or n + < to indent/unindent n times.
+    To quit help, use :q
+### 
+
+# k delete pod holy-api -n pluto
+# save the deployment yaml to /opt/course/9/holy-api-deployment.yaml
+# k apply -f /opt/course/9/holy-api-deployment.yaml
+
+Q10.
+# k run project-plt-6cc-api --image nginx:1.17.3-alpine --namespace pluto --labels=project=plt-6cc-api --port 80
+# k expose pod project-plt-6cc-api --name project-plt-6cc-svc --port=3333 --targetPort=80 --type=ClusterIP --namespace pluto
+# k get all -n pluto --> should have got both the pods and service running
+
+# k run tmp --image=nginx:alpine --namespace pluto
+# k exec -it tmp -- /bin/sh -c "curl project-plt-6cc-svc:3333" > /opt/course/10/service-test.html
+# k logs project-plt-6cc-api -n pluto > /opt/course/10/service-test.log
+
+# cat both files to check the results
+
+Q11.
+# ssh candidate@ckad9043
+# cd /opt/course/11
+# ENV SUN_CIPHER_ID=5b9c1065-e39d-4a43-a04a-e59bcea3e03f --> Add this to the Dockerfile before entrypoint
+
+# sudo docker build -t registry.killer.sh:5000/sun-cipher:latest -t registry.killer.sh:5000/sun-cipher:v1-docker .
+# sudo docker push registry.killer.sh:5000/sun-cipher:latest
+# sudo docker push registry.killer.sh:5000/sun-cipher:v1-docker
+# sudo docker images --> check images are built and pushed
+
+# podman build -t registry.killer.sh:5000/sun-cipher:v1-podman .
+# podman images --> check the image is built
+# podman push registry.killer.sh:5000/sun-cipher:v1-podman
+
+# podman run -d --name sun-cipher registry.killer.sh:5000/sun-cipher:v1-podman 
+# podman logs sun-cipher > /opt/course/11/logs
+# podman ps > /opt/course/11/containers
+
+# cat the files to check the results
+
+Q12.
+# Just search k8s docs to get pv and pvc yaml files and edit them accordingly.
+
+# PV
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: earth-project-earthflower-pv
+spec:
+  storageClassName: ""
+  accessModes:
+    - ReadWriteOnce
+  capacity:
+    storage: 2Gi
+  hostPath:
+    path: "/Volumes/Data"
+
+# PVC
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: earth-project-earthflower-pvc
+spec:
+  storageClassName: "" # Empty string must be explicitly set otherwise default StorageClass will be set
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 2Gi
+  volumeName: earth-project-earthflower-pv
+
+# k apply -f pv.yaml
+# k apply -f pvc.yaml -n earth
+# k get pvc -n earth --> check if the pvc is bound to the pv
+
+# Deployment
+# k create deployment project-earthflower --image httpd:2.4.41-alpine --dry-run=client -oyaml > deploy.yaml
+# vi deploy.yaml --> add the volumeMounts and volumes fields to the container spec
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    app: project-earthflower
+  name: project-earthflower
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: project-earthflower
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: project-earthflower
+    spec:
+      containers:
+      - image: httpd:2.4.41-alpine
+        name: httpd
+        volumeMounts:
+          - mountPath: "/tmp/project-data"
+            name: mypvc
+        resources: {}
+      volumes:
+        - name: mypvc
+          persistentVolumeClaim:
+            claimName: earth-project-earthflower-pvc
+status: {}
+
+# k apply -f deploy.yaml -n earth
+# k get pods --> get the pod name for project-earthflower
+# k describe po <pod-name> -n earth --> check if the pod is mounted with the pvc
+
+Q13.
+# Storage Class
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: moon-retain
+provisioner: moon-retainer
+reclaimPolicy: Retain # default value is Delete
+
+# PVC
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: moon-pvc-126
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 3Gi
+  storageClassName: moon-retain
+
+# k apply -f sc.yaml
+# k apply -f pvc.yaml -n moon
+
+# k describe pvc moon-pvc-126 -n moon (get the message only, not the whole k describe)> /opt/course/13/pvc-126-reason --> expected to see the message that the PVC is not bound yet as the provisioner needs to be created.
+
+Q14.
+# k create secret generic secret1 --from-literal=user=test --from-literal=pass=pwd -n moon
+# cat /opt/course/14/secret2.yaml --> get the name of the second secret
+# cp /opt/course/14/secret-handler.yaml /opt/course/14/secret-handler-new.yaml
+# vi /opt/course/14/secret-handler-new.yaml --> add secrets as follow:
+
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    id: 14287212-81dc-4c09-b5d6-afd79200c56a
+    red_ident: 9cf7a70c-fdb2-4c35-9c13-c2a0bb52b4a9
+    type: automatic
+  name: secret-handler
+spec:
+  volumes:
+  - name: cache-volume1
+    emptyDir: {}
+  - name: cache-volume2
+    emptyDir: {}
+  - name: cache-volume3
+    emptyDir: {}
+  - name: mysecret2 # secret 2 volumes
+    secret:
+      secretName: secret2
+  containers:
+  - name: secret-handler
+    image: bash:5.0.11
+    args: ['bash', '-c', 'sleep 2d']
+    volumeMounts:
+    - mountPath: /cache1
+      name: cache-volume1
+    - mountPath: /cache2
+      name: cache-volume2
+    - mountPath: /cache3
+      name: cache-volume3
+    - mountPath: /tmp/secret2 # secret 2 mount path
+      name: mysecret2
+    env:
+    - name: SECRET_KEY_1
+      value: "_8$KhjkYi_18H!mQd^"
+    - name: SECRET_KEY_2
+      value: "$z1_O^XJk#vNdnj*+*"
+    - name: SECRET_KEY_3
+      value: "__7PA0_Z]?(pw43r)__"
+    - name: SECRET1_USER # secret 1 user
+      valueFrom:
+        secretKeyRef:
+          name: secret1
+          key: user
+    - name: SECRET1_PASS # secret 1 password
+      valueFrom:
+        secretKeyRef:
+          name: secret1
+          key: pass
+
+# k apply -f /opt/course/14/secret-handler-new.yaml -n moon
+# Check by going to the pods:
+# k exec -it secret-handler -n moon -- /bin/bash
+# echo $SECRET1_USER
+# echo $SECRET1_PASS
+# cat /tmp/secret2
+
+Q15.
+# k create configmap configmap-web-moon-html --from-file=index.html=/opt/course/15/web-moon.html -n moon --> NOTE THE KEY-NAME index.html!
+# k rollout restart deployment web-moon -n moon
+# k run tmp --image=nginx:alpine --namespace=moon
+# k get po -n moon --> get the pod ip
+# k exec -it tmp -- /bin/sh -c "curl <pod-ip>" --> should get the content of the html file
+
+Q16. 
+# Add the following on /opt/course/16/cleaner-new.yaml:
+
+...
+initContainers:
+...
+- name: logger-con
+    image: busybux:1.31.0
+    restartPolicy: Always # THIS IS IMPORTANT as it is a sidecar container
+    command: ['bash', '-c', 'tail -f /var/log/cleaner/cleaner.log']
+    volumeMounts:
+    - name: logs
+      mountPath: /var/log/cleaner
+
+# k apply -f /opt/course/16/cleaner-new.yaml -n mercury
+# Now if you do k get pods, you will get the following:
+
+cleaner-xxxxxxxxxx-xxxxx   2/2     Running   0          2m
+cleaner-xxxxxxxxxx-xxxxx   2/2     Running   0          2m
+
+# There are 2 containers in each pod, as the sidecar container is running as well.
+# Hence to get the logs of the second container, do the following:
+# k logs pod/cleaner-xxxxxxxxxx-xxxxx -c logger-con -n mercury --> -c logger-con is to select the sidecar container (i.e. its name is logger-con)
+
+Q17.
+# vi /opt/course/17/test-init-container.yaml
+# Add the following:
+...
+initContainers:
+  - name: init-con
+    image: busybox:1.31.0
+    command: ['sh', '-c', "echo 'check this out!' > /usr/share/nginx/html/index.html"]
+    volumeMounts:
+    - name: web-content
+      mountPath: /usr/share/nginx/html
+...
+
+# k apply -f /opt/course/17/test-init-container.yaml -n mars
+# k get po -o wide -n mars --> get the IP of the pod
+# k run tmp --image=nginx:alpine --namespace=mars --rm -i -- /bin/sh -c "curl <pod-ip>" --> should get the content of the html file
+
+Q18.
+# k get svc -n mars --> Endpoints are None, meaning the service is not pointing to any pod.
+# Check pods, deployments and service labels to see if they are matching.
+# k get pods -n mars --show-labels
+# k get deployments -n mars --show-labels
+# k describe service manager-api-svc --> check the selectors, should match the pod labels sinc ethis service need to connect to the pods of deployment.
+
+# k edit svc manager-api-svc -n mars --> change the selectors to match the pod labels
+# k get svc -n mars --> check if the endpoints are now pointing to the pods
+# k run tmp --image=nginx:alpine --namespace=mars --rm -i -- /bin/sh -c "curl manager-api-svc.mars:4444" --> should get the content of the service  
+
+Q19.
+# k edit svc jupiter-crew-svc --> change the type to NodePort and add the port to be 30100
+...
+type: NodePort
+ports:
+- nodePort: 30100
+...
+
+# k get nodes -o wide
+# curl <node-ip>:30100 --> try with all node ips to see which one is working
+
+Q20.
+# k get po, deployment, svc --show-labels --> Get the relevant labels
+
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: np1
+  namespace: venus # Need to specify the namespace for which the network policy is applied
+spec:
+  podSelector:
+    matchLabels:
+      id: frontend # Need to specify the label for the resource for which the network policy is applied
+  policyTypes:
+  - Egress # Egress it outgoing traffic
+  egress:
+  - to:
+      podSelector:
+        matchLabels:
+          id: api # The label for the resource where the traffic is allowed to go
+  - ports:
+    - protocol: TCP
+      port: 53 # For DNS Resolution (i.e. when you curl/wget with service name directly)
+    - protocol: UDP
+      port: 53
+
+# Test with the following:
+# k exec -it <frontend-deployment-pod> -- /bin/sh -c "wget www.google.com" --> should not work  
+# k exec -it <frontend-deployment-pod> -- /bin/sh -c "wget api:2222" --> should work
+
+Q21.
+# Create the following yaml file:
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: neptune-10ab
+  name: neptune-10ab
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: neptune-10ab
+  strategy: {}
+  template:
+    metadata:
+      labels:
+        app: neptune-10ab
+    spec:
+      serviceAccountName: neptune-sa-v2
+      containers:
+      - image: httpd:2.4-alpine
+        name: neptune-pod-10ab
+        resources:
+          requests:
+            memory: "20Mi"
+          limits:
+            memory: "50Mi"
+status: {}
+
+# k apply -f deployment.yaml -n neptune
+
+Q22.
+# k label pods type=worker protected=true -n sunny
+# k label pods type=runner protected=true -n sunny
+# k annotate pods --selector=type=worker,type=runner protected="do not delete this pod" -n sunny
+

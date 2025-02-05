@@ -1,0 +1,5 @@
+# Debugging
+
+### Get CPU/memory utilization for nodes (metrics-server must be running)
+
+k top nodes

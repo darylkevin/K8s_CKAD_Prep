@@ -1,0 +1,49 @@
+# Multi-container pods and connecting to second container
+
+...
+spec:
+  containers:
+  - name: busybox
+    image: busybox
+    command: ['/bin/sh', '-c']
+    args: ['echo Hello, World!']
+    ports:
+    - containerPort: 80
+  - name: busybox2 # Note this name MUST BE different from the first container
+    image: busybox
+    command: ['/bin/sh', '-c']
+    args: ['echo Hello, World!']
+
+
+To connect to the second container, use the following command:
+
+k exec -it <pod-name> -c <second-container-name> -- <command>
+
+e.g.
+
+k exec -it busybox -c busybox2 -- 'ls'
+
+# Init-containers
+
+They executed first before the main containers in the pod. They are used to prepare the environment for the main containers.
+They cannot do probes though (liveness, readiness, startup). If need this then do sidecar container instead.
+
+...
+spec:
+  initContainers:
+  - name: ...
+    image: ...
+    command: ...
+    volumeMounts:
+    - name: <...>
+      mountPath: ...
+  containers:
+  - name: ...
+    image: ...
+    command: ...
+    volumeMounts:
+    - name: <...>
+      mountPath: ...
+  volumes:
+  - name: <...>
+    emptyDir: {}

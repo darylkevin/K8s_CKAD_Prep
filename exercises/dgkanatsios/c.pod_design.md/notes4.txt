@@ -1,0 +1,28 @@
+# Creating jobs
+kubectl create job pi  --image=perl:5.34 -- perl -Mbignum=bpi -wle 'print bpi(2000)'
+// Note here after -- , dont use any quotes for the command
+// If you want to do quotes, execute it on a shell like so
+// kubectl create job pi --image=perl:5.34 -- /bin/sh -c "perl -Mbignum=bpi -wle 'print bpi(2000)'"
+
+# Checking the logs of the job --> through pods that are created --> k get pods
+
+# Checking the status of the job --> k get jobs
+
+# Automatically termintate the job after certain time
+...
+spec:
+    activeDeadlineSeconds: 30 // meaning the job will be terminated after 30 seconds
+
+# Do jobs one after the other
+...
+spec:
+    completions: 5 // meaning the job will be executed 5 times
+    activeDeadlineSeconds: 30
+    ...
+
+# Do jobs in parallel
+...
+spec:
+    parallelism: 5 // meaning 5 jobs will be executed in parallel
+    activeDeadlineSeconds: 30
+    ...
